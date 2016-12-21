@@ -30,7 +30,7 @@ from ryu.lib.mac import DONTCARE_STR
 from ryu.lib.dpid import dpid_to_str, str_to_dpid
 from ryu.lib.port_no import port_no_to_str
 from ryu.lib.packet import packet, ethernet
-from ryu.lib.packet import lldp, ether_types
+from ryu.lib.packet import lldp, ether_types, vlan
 from ryu.ofproto.ether import ETH_TYPE_LLDP
 from ryu.ofproto.ether import ETH_TYPE_CFM
 from ryu.ofproto import nx_match
@@ -466,7 +466,12 @@ class LLDPPacket(object):
         eth_pkt = six.next(i)
         assert type(eth_pkt) == ethernet.ethernet
 
-        lldp_pkt = six.next(i)
+        vlan_pkt = six.next(i)
+        if type(vlan_pkt) == vlan.vlan:
+            lldp_pkt = six.next(i)
+        else:
+            lldp_pkt = vlan_pkt
+
         if type(lldp_pkt) != lldp.lldp:
             raise LLDPPacket.LLDPUnknownFormat()
 
@@ -653,6 +658,7 @@ class Switches(app_manager.RyuApp):
                             ofproto.OFPIT_APPLY_ACTIONS, actions)]
                     mod = parser.OFPFlowMod(datapath=dp, match=match,
                                             idle_timeout=0, hard_timeout=0,
+                                            table_id=60,
                                             instructions=inst,
                                             priority=0xFFFF)
                     dp.send_msg(mod)
