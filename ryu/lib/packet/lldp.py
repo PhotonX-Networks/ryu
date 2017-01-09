@@ -364,7 +364,7 @@ class SystemDescription(LLDPBasicTLV):
 @lldp.set_tlv_type(LLDP_TLV_SYSTEM_CAPABILITIES)
 class SystemCapabilities(LLDPBasicTLV):
     # chassis subtype(1) + system cap(2) + enabled cap(2)
-    _PACK_STR = '!BHH'
+    _PACK_STR = '!HH'
     _PACK_SIZE = struct.calcsize(_PACK_STR)
     _LEN_MIN = _PACK_SIZE
     _LEN_MAX = _PACK_SIZE
@@ -384,7 +384,7 @@ class SystemCapabilities(LLDPBasicTLV):
     def __init__(self, buf=None, *args, **kwargs):
         super(SystemCapabilities, self).__init__(buf, *args, **kwargs)
         if buf:
-            (self.subtype, self.system_cap, self.enabled_cap) = \
+            (self.system_cap, self.enabled_cap) = \
                 struct.unpack(self._PACK_STR, self.tlv_info[:self._PACK_SIZE])
         else:
             self.subtype = kwargs['subtype']
